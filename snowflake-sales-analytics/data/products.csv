@@ -1,0 +1,11 @@
+customer_id,customer_name,segment,city,region
+C001,John Smith,Consumer,Los Angeles,West
+C002,Jane Doe,Corporate,New York,East
+C003,David Lee,Consumer,Chicago,Central
+C004,Emily Clark,Home Office,Houston,South
+C005,Michael Brown,Corporate,Phoenix,East
+C006,Johns Smith,Consumer,Los Angeles,West
+C007,Janes Doe,Corporate,New York,East
+C008,David kLee,Consumer,Chicago,North
+C009,Emilyn Clark,Home Office,Houston,North
+C0010,Michaels Brown,Corporate,Phoenix,West

@@ -1,0 +1,65 @@
+CREATE WAREHOUSE SALES_WH;
+USE WAREHOUSE SALES_WH;
+
+CREATE DATABASE SALES_DB;
+USE SALES_DB;
+
+CREATE SCHEMA RAW;
+CREATE SCHEMA MART;
+
+USE SCHEMA RAW;
+CREATE OR REPLACE TABLE RAW.CUSTOMERS (
+    customer_id STRING,
+    customer_name STRING,
+    segment STRING,
+    city STRING,
+    region STRING
+);
+CREATE OR REPLACE TABLE SALES_DB.RAW.PRODUCTS (
+    product_id STRING,
+    product_name STRING,
+    category STRING,
+    sub_category STRING
+);
+
+CREATE OR REPLACE TABLE SALES_DB.RAW.ORDERS (
+    order_id INT,
+    order_date DATE,
+    customer_id STRING,
+    product_id STRING,
+    quantity INT,
+    sales_amount NUMBER(10,2),
+    profit NUMBER(10,2)
+);
+
+Snowflake does not load CSVs directly from your PC. You first upload the CSVs to a stage, then use COPY INTO to move them into tables.
+
+CREATE OR REPLACE STAGE my_stage;
+
+USE DATABASE SALES_DB;
+USE SCHEMA RAW;
+
+PUT file://D:/powerbi/customers.csv @my_stage;
+PUT file://D:/powerbi/products.csv @my_stage;
+PUT file://D:/powerbi/orders.csv @my_stage;
+OR
+PUT file://D:/powerbi/customers.csv @SALES_DB.RAW.my_stage;
+
+COPY INTO SALES_DB.RAW.CUSTOMERS
+FROM @my_stage/customers.csv
+FILE_FORMAT = (TYPE = CSV SKIP_HEADER = 1);
+
+CREATE OR REPLACE TABLE ORDERS_CLEAN AS
+SELECT DISTINCT
+    o.ORDER_ID,
+    c.CUSTOMER_NAME,
+    p.PRODUCT_NAME,
+    o.QUANTITY,
+    o.PRICE,
+    o.ORDER_DATE
+FROM SALES_DB.RAW.ORDERS o
+JOIN SALES_DB.RAW.CUSTOMERS c ON o.CUSTOMER_ID = c.CUSTOMER_ID
+JOIN SALES_DB.RAW.PRODUCTS p ON o.PRODUCT_ID = p.PRODUCT_ID
+WHERE o.PRICE IS NOT NULL
+  AND o.PRICE > 0;
+
